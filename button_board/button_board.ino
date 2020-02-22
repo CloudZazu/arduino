@@ -1,12 +1,17 @@
 // Button Switch Quantity dependent variables - As you add more switches, add more here!
-int buttonNum[8] = {2,4,5,7,8,10,11,13}; // Button Pin input locations
-int lastButtonState[8] = {1,1,1,1,1,1,1,1}; //Default initial states 
-unsigned long lastDebounceTime[8] = {0,0,0,0,0,0,0,0}; // Default initial states
+int buttonPinMapping[] = {2,4,5,7,8,10,11,13}; // Button Pin input locations
+int ARRAY_SIZE = sizeof(buttonPinMapping) / sizeof(int);
 
-// ----------------------------------------------------
+// Default initial/global states per switch
+lastButtonState = new int [ARRAY_SIZE]
+lastDebounceTime = new unsigned long [ARRAY_SIZE]
+int lastButtonState[ARRAY_SIZE]; // lastButtonState tracking
+unsigned long lastDebounceTime[ARRAY_SIZE]; // lastDebounceTime tracking
+
+// ----------------------------------------------------------
 unsigned long debounceDelay = 50; // Vibration+electrical noise delay offset (ms) 
-int buttonSize = sizeof(buttonNum) / sizeof(int);
-int defaultButtSelect = buttonSize;
+
+int defaultButtSelect = ARRAY_SIZE;
 int buttSelect = defaultButtSelect; // 3 - Default - Idle Case - Has to be +1 higher than whatever # of switches are configured
 // i.e 2 switches means this should be 2+1
 int buttonFlag = 0;
@@ -15,14 +20,13 @@ int buttonState = 1;
 
 
 void setup() {
-
-  Serial.begin(115200);
-  
-  for (int x = 0; x < buttonSize; x++) {
-    pinMode(buttonNum[x], INPUT_PULLUP);
-    //attachInterrupt(buttonNum[x], buttPressed, LOW);
+  for (int x = 0; x < ARRAY_SIZE; x++) {
+    pinMode(buttonPinMapping[x], INPUT_PULLUP);
+    lastButtonState[x] = 1
+    lastDebounceTime[x] = 0
+    //attachInterrupt(buttonPinMapping[x], buttPressed, LOW);
   }
-
+   Serial.begin(115200);
 }
 
 void loop() {
@@ -30,6 +34,7 @@ void loop() {
       delay(10);
       buttPressed();
   }
+
   if (buttSelect != defaultButtSelect){
       buttonIdStr = "Button" + buttSelect
       Serial.println(buttonIdStr);
@@ -45,7 +50,7 @@ void loop() {
 }
 
 void buttPressed() {
-  for (int idx = 0; idx < buttonSize; idx++) {
+  for (int idx = 0; idx < ARRAY_SIZE; idx++) {
       bool butt = pin_read(idx);
       if (!butt) {
           buttSelect = idx;
@@ -58,8 +63,7 @@ void buttPressed() {
 bool pin_read(int buttonIdx)
 {
   // Debounce function
-
-    int reading = digitalRead(buttonNum[buttonIdx]);
+    int reading = digitalRead(buttonPinMapping[buttonIdx]);
 
   /*
   Serial.println("reading");
