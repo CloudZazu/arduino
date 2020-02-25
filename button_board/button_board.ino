@@ -1,32 +1,30 @@
 // Button Switch Quantity dependent variables - As you add more switches, add more here!
-int buttonPinMapping[] = {2,4,5,7,8,10,11,13}; // Button Pin input locations
-int ARRAY_SIZE = sizeof(buttonPinMapping) / sizeof(int);
+#define ARRAY_SIZE 8 // Number of switches
 
 // Default initial/global states per switch
-lastButtonState = new int [ARRAY_SIZE]
-lastDebounceTime = new unsigned long [ARRAY_SIZE]
+int buttonPinMapping[ARRAY_SIZE] = {2,4,5,7,8,10,11,13}; // Button Pin input locations
 int lastButtonState[ARRAY_SIZE]; // lastButtonState tracking
 unsigned long lastDebounceTime[ARRAY_SIZE]; // lastDebounceTime tracking
 
 // ----------------------------------------------------------
 unsigned long debounceDelay = 50; // Vibration+electrical noise delay offset (ms) 
 
-int defaultButtSelect = ARRAY_SIZE;
-int buttSelect = defaultButtSelect; // 3 - Default - Idle Case - Has to be +1 higher than whatever # of switches are configured
+int defaultbuttonSelect = ARRAY_SIZE;
+int buttonSelect = defaultbuttonSelect; // 3 - Default - Idle Case - Has to be +1 higher than whatever # of switches are configured
 // i.e 2 switches means this should be 2+1
 int buttonFlag = 0;
-
 int buttonState = 1;
 
+String defaultBtnStr = "Button";
 
 void setup() {
   for (int x = 0; x < ARRAY_SIZE; x++) {
     pinMode(buttonPinMapping[x], INPUT_PULLUP);
-    lastButtonState[x] = 1
-    lastDebounceTime[x] = 0
+    lastButtonState[x] = 1;
+    lastDebounceTime[x] = 0;
     //attachInterrupt(buttonPinMapping[x], buttPressed, LOW);
   }
-   Serial.begin(115200);
+   Serial.begin(115200); // Baudrate 115200 bits per second
 }
 
 void loop() {
@@ -35,25 +33,26 @@ void loop() {
       buttPressed();
   }
 
-  if (buttSelect != defaultButtSelect){
-      buttonIdStr = "Button" + buttSelect
+  if (buttonSelect != defaultbuttonSelect){
+      //Serial.println(millis() - lastDebounceTime[buttonSelect]);
+      String buttonIdStr = defaultBtnStr + buttonSelect;
       Serial.println(buttonIdStr);
   }
 
-  bool pressed = pin_read(buttSelect);
+  bool pressed = pin_read(buttonSelect);
   while (!pressed) {
-      pressed = pin_read(buttSelect);
+      pressed = pin_read(buttonSelect);
   }
 
   buttonFlag = 0;
-  buttSelect = defaultButtSelect;
+  buttonSelect = defaultbuttonSelect;
 }
 
 void buttPressed() {
   for (int idx = 0; idx < ARRAY_SIZE; idx++) {
       bool butt = pin_read(idx);
       if (!butt) {
-          buttSelect = idx;
+          buttonSelect = idx;
           buttonFlag = 1;
           break;
       }
