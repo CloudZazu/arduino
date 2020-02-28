@@ -18,6 +18,8 @@ or you can do something like the following with an absolute filepath to run it:
 ```
 python /Documents/arduino/button_board_logger.py
 ```
+![](execute_button_board_python.gif)
+
 ## Requirements
 
 ### Arduino 
