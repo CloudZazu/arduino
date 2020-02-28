@@ -2,7 +2,7 @@
 - [How it Works](#How-it-Works)
 - [Python Execution Command](#Python-Execution-Command)
 - [Requirements](#Requirements)
-    - [Arduino](#Ardunio)
+    - [Arduino](#Arduino)
     - [Python Packages](#Python-Packages)
     
 ## How it Works
