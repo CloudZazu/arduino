@@ -3,29 +3,25 @@ Prerequisities:
 pip install pyserial - Serial driver package
 pip install pytz - Time zone package
 """
+import csv
 import datetime
 import io
 import pytz
 import serial
  
-#device   = '/dev/tty.usbserial-AE01AX15' # serial port (Linux/Mac)
-device = 'COM3' # serial port (Windows)
-baud     = 115200                        # baud rate
-filename = 'button_switch_logging'                # log file to save data in
-filename_ext = '.txt'
-
 
 def get_log_output_file_ptr(timestamp):
     log_suffix = timestamp.strftime(LOG_SUFFIX_TIMESTAMP_FMT)
 
     outFile = None
     try:
-        full_filename = f'{filename}_{log_suffix}{filename_ext}'
-        outFile = open(full_filename, 'w')
+        full_filename = f'{FILENAME}_{log_suffix}{FILENAME_EXT}'
+        outFile = open(full_filename, 'w', newline='')
     except Exception as e:
         print(f'issue with opening file\nError:{e}')
 
     return outFile
+    
     
 def convert_line_to_str(line):
     
@@ -42,32 +38,50 @@ def convert_line_to_str(line):
     return tmp_line if tmp_line else str(line)
 
 
-BUTTON_LINEVAL_MAPPING = {'Button0' : 'A1', 
-                          'Button1' : 'A2',
-                          'Button2' : 'A3',
-                          'Button3' : 'A4',
-                          'Button4' : 'B1',
-                          'Button5' : 'B2',
-                          'Button6' : 'B3',
-                          'Button7' : 'B4'}
+def init_csv_writer(fp):
+    writer = csv.writer(fp)
+    writer.writerow(CSV_FIELDNAMES)
+    return writer
+    
 
 if __name__ == '__main__':
-
-    # Changeable constants
+     # Changeable constants
+     
+    #DEVICE_PORT   = '/dev/tty.usbserial-AE01AX15' # serial port (Linux/Mac)
+    DEVICE_PORT = 'COM3' # serial port (Windows)
+    BAUD_RATE     = 115200                        # baud rate (bits per second)
+    FILENAME = 'button_switch_logging'                # log file to save data in
+    FILENAME_EXT = '.csv'
+    CSV_FIELDNAMES = ['timestamp', 'button']
+    
+   
     TIMESTAMP_FMT = "%Y-%m-%d %H:%M:%S"
     LOG_SUFFIX_TIMESTAMP_FMT = "%Y-%m-%d_%H_%M_%S"
-    LOG_SPLIT_INTERVAL = datetime.timedelta(days=1)
+    LOG_SPLIT_INTERVAL = datetime.timedelta(days=1) # Can be hours=1, minutes=1, seconds=1
 
     EASTERN_TIMEZONE = pytz.timezone('US/Eastern')
-
+    
+    BUTTON_LINEVAL_MAPPING = {'Button0' : 'A1', 
+                              'Button1' : 'A2',
+                              'Button2' : 'A3',
+                              'Button3' : 'A4',
+                              'Button4' : 'B1',
+                              'Button5' : 'B2',
+                              'Button6' : 'B3',
+                              'Button7' : 'B4'}
+    
+    # ------------------------------------------------------
     current_time = datetime.datetime.now()
     prior_time = current_time
 
     output_file = get_log_output_file_ptr(current_time)
-
-    with serial.Serial(device, baud) as serialPort:
-        print('Connected')
-
+    writer = init_csv_writer(output_file)
+    
+    
+    serialPort = serial.Serial(DEVICE_PORT, BAUD_RATE)
+    print('Connected')
+    
+    try:
         while True:
             current_time = datetime.datetime.now()
             if prior_time + LOG_SPLIT_INTERVAL <= current_time:
@@ -78,6 +92,7 @@ if __name__ == '__main__':
                         print('ptr doesnt exist')
 
                 tmp_file = get_log_output_file_ptr(current_time)
+                writer = init_csv_writer(tmp_file)
                 if tmp_file:
                     output_file = tmp_file
                 
@@ -104,17 +119,28 @@ if __name__ == '__main__':
                     line = BUTTON_LINEVAL_MAPPING[line]
                 except Exception:
                     pass
-                    
-                line = f'{current_time} - {line}'
+                
+                # show line on screen
+                print(f'{current_time} - {line}')       
             except Exception:
                 pass
 
-            print(line)                      # show line on screen
-            output_file.write(line)          # write line of text to file
-            output_file.write('\n')                # Add new line 
-            output_file.flush()              # make sure it actually gets written out
-
+            try:
+                # write line of text to file
+                writer.writerow([current_time, line])          
+            except Exception as e:
+                print(f'cannot write row\nError:{e}')
+                
+            # make sure it actually gets written out
+            output_file.flush()      
+    except KeyboardInterrupt:
+        print('ending script due to CTRL-C interrupt')
+    except Exception as e:
+        print(f'Ending script/nError:{e}')
+        
     if output_file:
         output_file.close()
-
+    
+    if serialPort:
+        serialPort.close()
     print("We're done?!")
