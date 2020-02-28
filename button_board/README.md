@@ -12,11 +12,12 @@ i.e If the Python script started at 5PM EST, it would reset at 5PM EST on the fo
 python button_board_logging.py
 ```
 
-### Requirements
-####Arduino 
+## Requirements
+
+### Arduino 
 Arduino needs to be installed on some system in order to upload the .ino sketch file.
 
-####Python Packages
+### Python Packages
 To install required Python packages, run the following in command prompt/Terminal
 ```
 pip install pyserial
