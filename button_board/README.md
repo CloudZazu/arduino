@@ -1,7 +1,10 @@
 # Button Board
 - [How it Works](#How-it-Works)
-- [Required Packages](#Required-Packages)
-
+- [Python Execution Command](#Python-Execution-Command)
+- [Requirements](#Requirements)
+    - [Arduino](#Ardunio)
+    - [Python Packages](#Python-Packages)
+    
 ## How it Works
 We leverage the Arduino sketch code as the firmware to collect the button sensory data.\
 Then, use a Python script to data collect off the serial port and store it on a csv file 
