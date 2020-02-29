@@ -29,6 +29,15 @@ python /Documents/arduino/button_board_logger.py
 Arduino needs to be installed on some system in order to upload the .ino sketch file.\
 The Arduino version should be at least 1.8.10.
 
+Instructions can be found on https://www.instructables.com/id/Arduino-Hot-Key-Panel/
+
+Wiring config should resemble the following referenced from the link:
+![](arduino_wiring_config.png)
+It utilizes an active low config where the input is read as active low per ground when the switch is pressed down.\
+In human terms, 
+1) button press = 0~0.5V = read as True within the script
+2) no button press = 4.5~5V = read as False within the script.
+
 ### Python Packages
 At least Python 3.8 needs to be installed on the client PC and ensure pip is installed with it as an option.\
 To install required Python packages, run the following in command prompt/Terminal
